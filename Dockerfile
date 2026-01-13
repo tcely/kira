@@ -1,6 +1,8 @@
 # syntax=docker/dockerfile:1
 # check=error=true
 
+# Debian 13 = trixie
+ARG DEBIAN_VERSION="13"
 ARG DENO_VERSION="2.6.4"
 ARG TINI_VERSION="0.19.0"
 
@@ -19,15 +21,14 @@ COPY --from=deno-bin /deno /deno
 
 # ====== ------ ======
 
-FROM debian:13-slim AS deno-debian
-# Debian 13 = trixie
+FROM "debian:${DEBIAN_VERSION}-slim" AS deno-debian
 
 ARG DENO_DIR DENO_USER
 RUN useradd --uid 1993 --user-group "${DENO_USER}" \
   && mkdir -v -p "${DENO_DIR}" \
   && chown -v "${DENO_USER}:${DENO_USER}" "${DENO_DIR}"
 
-COPY --from=tini /tini /tini
+#COPY --from=tini /tini /tini
 
 ARG DENO_VERSION
 ENV DENO_USE_CGROUPS=1 \
@@ -37,8 +38,8 @@ ENV DENO_USE_CGROUPS=1 \
 
 COPY --from=deno /deno /usr/bin/deno
 
-ENTRYPOINT ["/tini", "--", "/usr/bin/env"]
-CMD ["deno", "eval", "console.log('Welcome to Deno!')"]
+#ENTRYPOINT ["/tini", "--", "/usr/bin/env"]
+#CMD ["deno", "eval", "console.log('Welcome to Deno!')"]
 
 FROM deno-debian AS kira-build
 
@@ -72,3 +73,20 @@ RUN deno compile --output /app/server \
         --exclude package.json \
         --include dist \
         server/deno.ts
+
+FROM "gcr.io/distroless/cc-debian${DEBIAN_VERSION}:debug" AS kira
+SHELL ["/busybox/busybox", "sh", "-c"]
+
+COPY --from=tini /tini /tini
+
+WORKDIR /usr/src/kira
+COPY --from=kira-build /source/ ./
+
+COPY --from=kira-build /dist/ /dist/
+
+WORKDIR /app
+COPY --from=kira-build /app/server /app/proxy ./
+
+USER nonroot
+ENTRYPOINT ["/tini", "--"]
+CMD ["/app/server"]
