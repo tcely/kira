@@ -1,5 +1,6 @@
 import { serveDir } from "jsr:@std/http/file-server";
 import { join } from "jsr:@std/path/posix/join";
+import * as proxy from "../proxy/deno.ts";
 
 const HOST = Deno.env.get("HOST") || "0.0.0.0";
 const PORT = parseInt(Deno.env.get("PORT") || "8000");
@@ -7,7 +8,7 @@ const PORT = parseInt(Deno.env.get("PORT") || "8000");
 const operation = Deno.env.get("WHICH") || "server";
 
 if ( "proxy" === operation ) {
-    import join(import.meta.dirname, "..", "proxy", "deno.ts");
+    Deno.serve({ hostname: HOST, port: PORT }, proxy.handler);
 } else {
     Deno.serve(
         {
