@@ -63,6 +63,7 @@ RUN deno compile --output /app/proxy \
 RUN deno compile --output /app/server \
         --allow-env=HOST,PORT --allow-net --allow-read=. \
         --exclude package.json \
+        --include dist \
         server/deno.ts
 
 # Create and populate node_modules, but don't store it.
