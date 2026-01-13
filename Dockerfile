@@ -64,7 +64,8 @@ RUN deno compile --output /app/proxy \
 RUN deno install --npm && \
     DENO_COMPAT=1 deno task build && \
     cp -v -a -t /dist/ dist/* && \
-    rm -rf node_modules
+    rm -rf node_modules && \
+    set -x && deno info && (deno clean || :)
 
 # Create a stand-alone server binary.
 RUN deno compile --output /app/server \
