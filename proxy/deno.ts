@@ -32,7 +32,7 @@ function copyHeader(headerName: string, to: Headers, from: Headers) {
   }
 }
 
-export const handler = async (request: Request) => {
+const handler = async (request: Request) => {
   const origin = request.headers.get('origin') || '';
 
   request.headers.forEach((value, key) => {
