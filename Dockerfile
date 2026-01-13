@@ -71,7 +71,7 @@ RUN deno install --npm && \
 RUN deno compile --output /app/server \
         --allow-env=HOST,PORT,WHICH --allow-net --allow-read=. \
         --exclude package.json \
-        --include dist --include proxy \
+        --include dist \
         server/deno.ts
 
 FROM "gcr.io/distroless/cc-debian${DEBIAN_VERSION}:debug" AS kira
