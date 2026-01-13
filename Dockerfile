@@ -44,6 +44,7 @@ COPY --from=deno /deno /usr/bin/deno
 FROM deno-debian AS kira-build
 
 USER "${DENO_USER}"
+WORKDIR /cache
 WORKDIR "${DENO_DIR}"
 WORKDIR /app
 WORKDIR /dist
