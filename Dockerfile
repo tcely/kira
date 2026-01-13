@@ -79,6 +79,14 @@ SHELL ["/busybox/busybox", "sh", "-c"]
 
 COPY --from=tini /tini /tini
 
+ARG DEBIAN_VERSION DENO_VERSION TINI_VERSION
+ARG KIRA_VERSION="0.0.1"
+ENV DENO_USE_CGROUPS=1 \
+    DENO_VERSION="${DENO_VERSION}" \
+    DEBIAN_VERSION="${DEBIAN_VERSION}" \
+    KIRA_VERSION="${KIRA_VERSION}" \
+    TINI_VERSION="${TINI_VERSION}"
+
 WORKDIR /usr/src/kira
 COPY --from=kira-build /source/ ./
 
@@ -87,6 +95,8 @@ COPY --from=kira-build /dist/ /dist/
 WORKDIR /app
 COPY --from=kira-build /app/server /app/proxy ./
 
+# server proxy
+EXPOSE 8000 8080
 USER nonroot
 ENTRYPOINT ["/tini", "--"]
 CMD ["/app/server"]
