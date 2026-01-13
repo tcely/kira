@@ -67,7 +67,7 @@ RUN deno install --npm && \
     DENO_COMPAT=1 deno task build && \
     cp -v -a -t /dist/ dist/* && \
     rm -rf node_modules && \
-    set -x && ls -al /cache && \
+    set -x && ls -al "${DENO_DIR}"/.. && \
     deno info && (deno clean || :)
 
 # Create a stand-alone server binary.
