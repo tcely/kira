@@ -49,6 +49,11 @@ WORKDIR /build
 
 COPY ./ ./
 
+# Create a stand-alone proxy binary.
+# Importantly, before node_modules is created.
 RUN deno compile --output /app/proxy --allow-net proxy/deno.ts
+
+# Create and populate node_modules.
 RUN deno install --npm
+
 RUN deno task build
