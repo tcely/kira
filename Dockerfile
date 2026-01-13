@@ -6,7 +6,7 @@ ARG DEBIAN_VERSION="13"
 ARG DENO_VERSION="2.6.4"
 ARG TINI_VERSION="0.19.0"
 
-ARG DENO_DIR="/cache/deno" DENO_USER="deno"
+ARG DENO_DIR="/var/cache/deno/deno-dir" DENO_USER="deno"
 
 # ++++ ---- ==== ****
 
@@ -24,9 +24,11 @@ COPY --from=deno-bin /deno /deno
 FROM "debian:${DEBIAN_VERSION}-slim" AS deno-debian
 
 ARG DENO_DIR DENO_USER
-RUN useradd --uid 1993 --user-group "${DENO_USER}" \
-  && mkdir -v -p "${DENO_DIR}" \
-  && chown -v "${DENO_USER}:${DENO_USER}" "${DENO_DIR}"
+RUN useradd --uid 1993 --user-group "${DENO_USER}" && \
+    mkdir -v -p "${DENO_DIR}" && \
+    chown -v "${DENO_USER}:${DENO_USER}" "${DENO_DIR}" "${DENO_DIR}"/.. && \
+    chown -v root:root /
+  
 
 #COPY --from=tini /tini /tini
 
@@ -44,7 +46,6 @@ COPY --from=deno /deno /usr/bin/deno
 FROM deno-debian AS kira-build
 
 USER "${DENO_USER}"
-WORKDIR /cache
 WORKDIR "${DENO_DIR}"
 WORKDIR /app
 WORKDIR /dist
