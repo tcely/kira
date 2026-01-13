@@ -59,13 +59,6 @@ RUN deno compile --output /app/proxy \
         --exclude package.json \
         proxy/deno.ts
 
-# Create a stand-alone server binary.
-RUN deno compile --output /app/server \
-        --allow-env=HOST,PORT --allow-net --allow-read=. \
-        --exclude package.json \
-        --include dist \
-        server/deno.ts
-
 # Create and populate node_modules, but don't store it.
 # The final output should only be in `dist`.
 RUN deno install --npm && \
@@ -73,6 +66,13 @@ RUN deno install --npm && \
     cp -v -a -t /dist/ dist/* && \
     rm -rf node_modules && \
     deno clean
+
+# Create a stand-alone server binary.
+RUN deno compile --output /app/server \
+        --allow-env=HOST,PORT --allow-net --allow-read=. \
+        --exclude package.json \
+        --include dist \
+        server/deno.ts
 
 FROM "gcr.io/distroless/cc-debian${DEBIAN_VERSION}:debug" AS kira
 SHELL ["/busybox/busybox", "sh", "-c"]
