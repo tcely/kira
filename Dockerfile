@@ -69,9 +69,9 @@ RUN deno install --npm && \
 
 # Create a stand-alone server binary.
 RUN deno compile --output /app/server \
-        --allow-env=HOST,PORT --allow-net --allow-read=. \
+        --allow-env=HOST,PORT,WHICH --allow-net --allow-read=. \
         --exclude package.json \
-        --include dist \
+        --include dist --include proxy \
         server/deno.ts
 
 FROM "gcr.io/distroless/cc-debian${DEBIAN_VERSION}:debug" AS kira
@@ -92,7 +92,7 @@ WORKDIR /usr/src/kira
 COPY --from=kira-build /source/ ./
 
 WORKDIR /app
-COPY --from=kira-build /app/server /app/proxy ./
+COPY --from=kira-build /app/server ./
 
 WORKDIR /dist
 COPY --from=kira-build /dist/ ./
