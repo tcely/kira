@@ -51,7 +51,10 @@ COPY ./ ./
 
 # Create a stand-alone proxy binary.
 # Importantly, before node_modules is created.
-RUN deno compile --output /app/proxy --allow-net proxy/deno.ts
+RUN deno compile --output /app/proxy \
+        --allow-net \
+        --exclude package.json \
+        proxy/deno.ts
 
 # Create and populate node_modules.
 RUN deno install --npm
@@ -61,7 +64,7 @@ RUN DENO_COMPAT=1 deno task build
 # Create a stand-alone server binary.
 # We do NOT want node_modules in this binary.
 RUN deno compile --output /app/server \
-      --allow-env=HOST,PORT --allow-net --allow-read=. \
-      --exclude package.json --exclude node_modules \
-      --include dist \
-      server/deno.ts
+        --allow-env=HOST,PORT --allow-net --allow-read=. \
+        --exclude package.json --exclude node_modules \
+        --include dist \
+        server/deno.ts
