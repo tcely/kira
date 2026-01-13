@@ -6,6 +6,7 @@ name: Docker
 # documentation.
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "main" ]
     # Publish semver tags as releases.
@@ -16,8 +17,6 @@ on:
 env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
-  # github.repository as <account>/<repo>
-  IMAGE_NAME: ${{ github.repository }}
 
 
 jobs:
@@ -32,6 +31,12 @@ jobs:
       id-token: write
 
     steps:
+      - name: Setup environment
+        shell: bash
+        run: |
+          printf >> "${GITHUB_ENV}" -- '%s=%s\n' \
+            'IMAGE_NAME' "${GITHUB_REPOSITORY@L}"
+
       - name: Checkout repository
         uses: actions/checkout@v6
 
@@ -76,6 +81,7 @@ jobs:
         with:
           context: .
           platforms: linux/amd64,linux/arm64
+          pull: true
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
