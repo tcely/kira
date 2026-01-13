@@ -57,3 +57,8 @@ RUN deno compile --output /app/proxy --allow-net proxy/deno.ts
 RUN deno install --npm
 
 RUN DENO_COMPAT=1 deno task build
+
+RUN deno compile --output /app/server \
+    --allow-net --allow-read \
+    --include dist \
+    server/deno.ts
