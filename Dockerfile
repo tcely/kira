@@ -56,4 +56,4 @@ RUN deno compile --output /app/proxy --allow-net proxy/deno.ts
 # Create and populate node_modules.
 RUN deno install --npm
 
-RUN deno task build
+RUN DENO_COMPAT=1 deno task build
