@@ -49,6 +49,6 @@ WORKDIR /build
 
 COPY ./ ./
 
-RUN deno install --npm
 RUN deno compile --output /app/proxy --allow-net proxy/deno.ts
+RUN deno install --npm
 RUN deno task build
