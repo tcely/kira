@@ -53,14 +53,6 @@ WORKDIR /build
 COPY ./ ./
 COPY ./ /source/
 
-# Create and populate node_modules, but don't store it.
-# The final output should only be in `dist`.
-RUN deno install --npm && \
-    DENO_COMPAT=1 deno task build && \
-    cp -v -a -t /dist/ dist/* && \
-    rm -rf node_modules && \
-    deno clean
-
 # Create a stand-alone proxy binary.
 RUN deno compile --output /app/proxy \
         --allow-env=HOST,PORT --allow-net \
@@ -71,13 +63,21 @@ RUN deno compile --output /app/proxy \
 RUN deno compile --output /app/server \
         --allow-env=HOST,PORT --allow-net --allow-read=. \
         --exclude package.json \
-        --include dist \
         server/deno.ts
+
+# Create and populate node_modules, but don't store it.
+# The final output should only be in `dist`.
+RUN deno install --npm && \
+    DENO_COMPAT=1 deno task build && \
+    cp -v -a -t /dist/ dist/* && \
+    rm -rf node_modules && \
+    deno clean
 
 FROM "gcr.io/distroless/cc-debian${DEBIAN_VERSION}:debug" AS kira
 SHELL ["/busybox/busybox", "sh", "-c"]
 
 COPY --from=tini /tini /tini
+#COPY --from=deno /deno /usr/bin/deno
 
 ARG DEBIAN_VERSION DENO_VERSION TINI_VERSION
 ARG KIRA_VERSION="0.0.1"
@@ -90,13 +90,13 @@ ENV DENO_USE_CGROUPS=1 \
 WORKDIR /usr/src/kira
 COPY --from=kira-build /source/ ./
 
-COPY --from=kira-build /dist/ /dist/
-
 WORKDIR /app
 COPY --from=kira-build /app/server /app/proxy ./
 
-# server proxy
-EXPOSE 8000 8080
+WORKDIR /dist
+COPY --from=kira-build /dist/ ./
+
+EXPOSE 8000
 USER nonroot
 ENTRYPOINT ["/tini", "--"]
 CMD ["/app/server"]
