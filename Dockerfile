@@ -6,7 +6,7 @@ ARG DEBIAN_VERSION="13"
 ARG DENO_VERSION="2.6.4"
 ARG TINI_VERSION="0.19.0"
 
-ARG DENO_DIR="/deno-dir/" DENO_USER="deno"
+ARG DENO_DIR="/cache/deno" DENO_USER="deno"
 
 # ++++ ---- ==== ****
 
