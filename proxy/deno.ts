@@ -1,9 +1,8 @@
 // Example Deno based proxy server for those who can't or don't want to use the
 // companion browser extension.
 
-import { serve } from 'https://deno.land/std@0.148.0/http/server.ts';
-
-const port = 8080;
+const HOST = Deno.env.get("HOST") || "127.0.0.1";
+const PORT = parseInt(Deno.env.get("PORT") || "8080");
 
 const ALLOWED_HEADERS = [
   'Origin',
@@ -120,4 +119,4 @@ const handler = async (request: Request): Promise<Response> => {
   });
 };
 
-await serve(handler, { port });
+Deno.serve({ hostname: HOST, port: PORT }, handler);
