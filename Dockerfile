@@ -58,7 +58,10 @@ RUN deno install --npm
 
 RUN DENO_COMPAT=1 deno task build
 
+# Create a stand-alone server binary.
+# We do NOT want node_modules in this binary.
 RUN deno compile --output /app/server \
-    --allow-net --allow-read \
-    --include dist \
-    server/deno.ts
+      --allow-env=HOST,PORT --allow-net --allow-read=. \
+      --exclude package.json --exclude node_modules \
+      --include dist \
+      server/deno.ts
