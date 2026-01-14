@@ -144,7 +144,7 @@ watchEffect(() => {
       const timeout = setTimeout(() => {
         removeToast(toast.id);
         timeouts.delete(toast.id);
-      }, toast.duration || 5000);
+      }, toast.duration || 15_000);
       timeouts.set(toast.id, timeout);
     }
   });
