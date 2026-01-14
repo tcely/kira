@@ -3,7 +3,7 @@ import HomePage from './pages/HomePage.vue';
 import WatchPage from './pages/WatchPage.vue';
 
 export const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes: [
     {
       path: '/',
